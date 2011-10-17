@@ -152,7 +152,7 @@
             prettyName: song + ' by ' + artist
         };
     };
-    var player = function () { // player viewmodel
+    var player = function (id) { // player viewmodel
         var that = this;
         // normally some sort of server call would populate this.
         that.library = ko.observableArray([
@@ -171,24 +171,19 @@
             });
         };
         that.volume = ko.observable(1);
-        that.preMuteVolume = ko.observable(1);
+        that.isMuted = ko.observable(false);
         that.currentTrack = ko.observable();
         that.play = function () {
-            var audio = $('#player')[0];
-            if (audio) audio.play();
+            $(id)[0].play();
         };
         that.pause = function () {
-            var audio = $('#player')[0];
-            if (audio) audio.pause();
+            $(id)[0].pause();
         };
         that.playtoggle = function () {
             if (that.currentTrack() == null) that.currentTrack(that.library()[0]); // add track if there isn't one 
-            var audio = $('#player')[0];
 
-            if (audio) {
-                if (audio.paused) { that.play(); that.message('play'); }
-                else { that.pause(); that.message('paused'); }
-            }
+            if ($(id)[0].paused) { that.play(); that.message('play'); }
+            else { that.pause(); that.message('paused'); }
         };
         that.skip = function () {
             var current = that.filteredLibrary().indexOf(that.currentTrack()) | 0,
@@ -202,7 +197,7 @@
             }
         };
         that.prev = function () {
-            var audio = $('#player')[0],
+            var audio = $(id)[0],
                 currentTime = audio.currentTime | 0;
             var current = that.filteredLibrary().indexOf(that.currentTrack()) | 0,
                 total = that.filteredLibrary().length;
@@ -219,6 +214,8 @@
             }
         };
         that.up = function () {
+            that.isMuted(false); // unmute on volume up only
+
             var vol = that.volume() + .05;
             if (vol <= 1) that.volume(vol);
             else that.message('volume: maxed');
@@ -226,26 +223,14 @@
         that.down = function () {
             var vol = that.volume() - .05;
             if (vol >= 0) that.volume(vol);
-            else that.message('volume: muted');
+            else that.message('volume: min');
         };
         that.mutetoggle = function () {
-            var vol = that.volume(),
-                premute = that.preMuteVolume(),
-                $mutetoggle = $('#mutetoggle');
-            if (vol === 0) {
-                that.volume(premute);
-                that.message('volume: ' + Math.round(premute * 100) + '%');
-                $mutetoggle.removeClass('mute');
-            } else {
-                that.preMuteVolume(vol);
-                that.volume(0);
-                that.message('volume: muted');
-                $mutetoggle.addClass('mute');
-            }
+            that.isMuted(!that.isMuted());
         };
         that.message = ko.observable('');
     };
-    app.viewModel = new player();
+    app.viewModel = new player('#player');
 
     // subscribers
     app.viewModel.currentTrack.subscribe(function (value) {
@@ -266,6 +251,15 @@
 
         app.viewModel.message(value.prettyName);
         if (wasPlaying) app.viewModel.play();
+    });
+
+    app.viewModel.isMuted.subscribe(function (value) {
+        var audio = $('#player')[0],
+            $mutetoggle = $('#mutetoggle');
+        audio.muted = value;
+        if (value) { $mutetoggle.addClass('mute'); }
+        else { $mutetoggle.removeClass('mute'); }
+        app.viewModel.message('volume: ' + value ? 'muted' : 'unmuted');
     });
 
     app.viewModel.volume.subscribe(function (value) {
