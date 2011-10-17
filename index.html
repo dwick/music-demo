@@ -1,0 +1,142 @@
+﻿<!doctype html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!--[if IE 9]>    <html class="no-js ie9 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 9]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <title>Music Demo | David Wick</title>
+    <meta name="description" content="Simple music player proof of concept.">
+    <meta name="author" content="David Wick">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+    <!-- CSS concatenated and minified via ant build script-->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- end CSS-->
+    <script src="js/libs/modernizr-2.0.6.min.js"></script>
+</head>
+<body>
+    <noscript>
+        <div id="js-warning" class="alert-message error">
+            <p><strong>JavaScript is disabled on your browser</strong> Please enable JavaScript or upgrade to a JavaScript-capable browser to use this site.</p>
+        </div>
+    </noscript>
+    <div id="wrapper">
+        <header id="toolbar" role="banner">
+            <div class="container">
+                <div id="title" class="first col three">
+                    <h1>Music demo</h1>
+                    by
+                    <strong itemprop="fn">
+                        <span itemprop="given-name">David</span>
+                        <span itemprop="familiy-name">Wick</span>
+                    </strong>
+                    <div id="contact">
+                        <div itemprop="url"><a href="/">davidwick.me</a></div>
+                    </div>
+                </div>
+                <div id="metadata" data-bind="with: currentTrack" class="col three last" role="contentinfo">
+                    <div>
+                        <strong data-bind="stext: song"></strong>
+                    </div>
+                    <div>
+                        by <span data-bind="stext: artist"></span>
+                    </div>
+                    <div>
+                        on <span data-bind="stext: album"></span>
+                    </div>
+                </div>
+                <div class="col six">
+                    <nav id="play-controls" role="navigation">
+                        <a href="#" id="prev" data-bind="click: prev">Previous track</a>
+                        <a href="#" id="playtoggle" data-bind="click: playtoggle">Toggle playback</a>
+                        <a href="#" id="skip" data-bind="click: skip">Next track</a>
+                        <a href="#" id="volume-down" data-bind="click: down">Volume down</a>
+                        <a href="#" id="volume-up" data-bind="click: up">Volume up</a>
+                        <a href="#" id="mutetoggle" data-bind="click: mutetoggle">Mute sound</a>
+                    </nav>
+                    <div id="gutter">
+                        <div id="loading"></div>
+                        <div id="handle" class="ui-slider-handle"></div>
+                    </div>
+                    <span id="timeleft" data-bind="text: timeleft"></span>
+                    <div id="message" data-bind="flash: message"></div>
+                </div>
+            </div>
+        </header>
+        <div class="container" role="main">
+            <div id="filters" class="col three">
+                <label for="search">Search</label>
+                <input id="search" name="search" type="text" placeholder="search" data-bind="value: search, valueUpdate: 'keyup'" />
+                <ul>
+                    <li><a href="#" id="clear-filter">All</a></li>
+                    <li>
+                        <strong>Artists</strong>
+                        <ul data-bind="foreach: artists"> 
+                            <li><a href="#" class="filter" data-bind="stext: $data"></a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Albums</strong>
+                        <ul data-bind="foreach: albums"> 
+                            <li><a href="#" class="filter" data-bind="stext: $data"></a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <section id="library" class="col nine last">
+                <div id="audio-support" class="alert-message error">
+                    <p><strong>Oops!</strong> Your browser doesn't support html5 audio.  Please upgrade to an html5-ready browser to use this site.</p>
+                </div>
+                <header>
+                    <h1>Library</h1>
+                </header>
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="sort"><a href="#">Song</a></th>
+                            <th class="sort"><a href="#">Artist</a></th>
+                            <th class="sort"><a href="#">Album</a></th>
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: filteredLibrary">
+                        <tr class="track" data-bind="dblclick: jumpTo, attr: { 'data-id': id }">
+                            <td data-bind="text: song"></td>
+                            <td data-bind="text: artist"></td>
+                            <td data-bind="text: album"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </div>
+        <audio id="player" data-bind="audio: { value: currentTrack, playlist: filteredLibrary }" preload="meta">
+            <source id="mp3" type="audio/mpeg">
+            <source id="ogg" type="audio/ogg; codecs=vorbis">
+        </audio>
+    </div>
+    <script>
+        Modernizr.load([
+                {
+                    load: '//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js',
+                    complete: function () {
+                        if (!window.jQuery) {
+                            Modernizr.load('js/libs/jquery-1.6.2.min.js');
+                        }
+                    }
+                },
+                {
+                    load: [
+                        'js/libs/jquery-ui-1.8.16.custom.min.js',
+                        'js/libs/knockout-1.3.0beta.debug.js',
+                        'js/script.js'
+                    ]
+                }
+            ]);
+
+    </script>
+    <!--[if lt IE 9 ]>
+      <script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+      <script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
+    <![endif]-->
+</body>
+</html>
